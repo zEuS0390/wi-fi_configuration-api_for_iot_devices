@@ -1,0 +1,10 @@
+/etc/hostapd/hostapd.conf
+/etc/hostapd/hostapd.conf.old
+
+/etc/dhcpcd.conf
+/etc/dhcpcd.conf.old
+
+/etc/dnsmasq.conf
+/etc/dnsmasq.conf.old
+
+/etc/wpa_supplicant/wpa_supplicant.conf

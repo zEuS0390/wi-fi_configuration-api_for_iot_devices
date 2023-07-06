@@ -1,0 +1,11 @@
+[Unit]
+Description=A local-based web application using flask to set up connection another Wi-Fi network
+After=multi-user.target
+
+[Service]
+WorkingDirectory=/home/user/Desktop/wifi-conn-web-app
+ExecStart=/usr/bin/python main.py
+User=user
+
+[Install]
+WantedBy=multi-user.target

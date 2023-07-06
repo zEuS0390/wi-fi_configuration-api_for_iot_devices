@@ -1,0 +1,10 @@
+[Unit]
+Description=Button listener to switch back the network configuration as being an access point and at the same time shutdown the system
+
+[Service]
+WorkingDirectory=/home/user/Desktop/wifi-conn-web-app
+ExecStart=/usr/bin/python button_listener.py
+User=user
+
+[Install]
+WantedBy=multi-user.target

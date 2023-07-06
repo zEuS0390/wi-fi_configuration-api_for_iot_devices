@@ -8,10 +8,12 @@ wpa_supplicant = "/etc/wpa_supplicant/wpa_supplicant.conf"
 
 isRunning = True
 button_pin = 17
+led_pin = 27
 
 GPIO.setwarnings(False)
 GPIO.setmode(GPIO.BCM)
 
+GPIO.setup(led_pin, GPIO.OUT)
 GPIO.setup(button_pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
 time_flag = False
@@ -23,6 +25,8 @@ def switchToAP():
     APConfig.copyfile("configurations/dnsmasq.conf", dnsmasq)
     APConfig.copyfile("configurations/dhcpcd.conf", dhcpcd)
     APServices.start()
+
+GPIO.output(led_pin, GPIO.HIGH)
 
 while isRunning:
 
@@ -42,7 +46,15 @@ while isRunning:
         button_flag = True
         time.sleep(0.1)
 
+for _ in range(5):
+    time.sleep(0.2)
+    GPIO.output(led_pin, GPIO.LOW)
+    time.sleep(0.2)
+    GPIO.output(led_pin, GPIO.HIGH)
+
 print("Proper shutdown and resetting network configuration")
 switchToAP()
+
+GPIO.output(led_pin, GPIO.LOW)
 
 GPIO.cleanup()

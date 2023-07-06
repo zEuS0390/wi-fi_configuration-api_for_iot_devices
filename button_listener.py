@@ -1,6 +1,6 @@
 import RPi.GPIO as GPIO
 from configconn import *
-import time
+import time, subprocess
 
 dnsmasq = "/etc/dnsmasq.conf"
 dhcpcd = "/etc/dhcpcd.conf"
@@ -58,3 +58,5 @@ switchToAP()
 GPIO.output(led_pin, GPIO.LOW)
 
 GPIO.cleanup()
+
+subprocess.run(["sudo", "shutdown", "-h", "now"])

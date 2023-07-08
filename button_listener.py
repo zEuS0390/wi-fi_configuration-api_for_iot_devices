@@ -1,62 +1,34 @@
-import RPi.GPIO as GPIO
+from hardware import Hardware
 from configconn import *
 import time, subprocess
 
 dnsmasq = "/etc/dnsmasq.conf"
 dhcpcd = "/etc/dhcpcd.conf"
 wpa_supplicant = "/etc/wpa_supplicant/wpa_supplicant.conf"
+buzzer_pin = 23
+red_pin = 22
+green_pin = 16
+blue_pin = 27
+button_pin = 26
 
-isRunning = True
-button_pin = 17
-led_pin = 27
-
-GPIO.setwarnings(False)
-GPIO.setmode(GPIO.BCM)
-
-GPIO.setup(led_pin, GPIO.OUT)
-GPIO.setup(button_pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-
-time_flag = False
-button_flag = True
-start_time = 0
-target_time = 3
+hardware = Hardware(
+    redpin = red_pin,
+    greenpin = green_pin,
+    bluepin = blue_pin,
+    buttonpin = button_pin,
+    buzzerpin = buzzer_pin
+)
 
 def switchToAP():
+    print("Resetting network configuration")
+    hardware.playBuzzer(5, 0.2, 0.2, useLED=True, ledColor=(False, True, False))
     APConfig.copyfile("configurations/dnsmasq.conf", dnsmasq)
     APConfig.copyfile("configurations/dhcpcd.conf", dhcpcd)
     APServices.start()
 
-GPIO.output(led_pin, GPIO.HIGH)
+hardware.setColorRGB(False, True, False)
+hardware.buttonListen(target_time=3, callback_func=switchToAP)
+hardware.close()
 
-while isRunning:
-
-    if GPIO.input(button_pin) == GPIO.HIGH:
-
-        if time_flag == True:
-            elapsed_time = time.time() - start_time
-            if elapsed_time >= target_time:
-                isRunning = False
-
-        if button_flag == True:
-            button_flag = False
-            time_flag = True
-            start_time = time.time()
-
-    else:
-        button_flag = True
-        time.sleep(0.1)
-
-for _ in range(5):
-    time.sleep(0.2)
-    GPIO.output(led_pin, GPIO.LOW)
-    time.sleep(0.2)
-    GPIO.output(led_pin, GPIO.HIGH)
-
-print("Proper shutdown and resetting network configuration")
-switchToAP()
-
-GPIO.output(led_pin, GPIO.LOW)
-
-GPIO.cleanup()
-
-subprocess.run(["sudo", "shutdown", "-h", "now"])
+print("Executing system shutdown")
+subprocess.run(["sudo", "shutdown", "-h", "now"], shell=False)

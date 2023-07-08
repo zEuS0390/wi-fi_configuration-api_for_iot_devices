@@ -1,17 +1,40 @@
 from flask_restful import Resource, Api, request
 from flask.json import jsonify
+from hardware import Hardware
 from flask import Flask
 from configconn import *
+import urllib.request
 import os, threading
-
-app = Flask(__name__)
-api = Api(app)
 
 dnsmasq = "/etc/dnsmasq.conf"
 dhcpcd = "/etc/dhcpcd.conf"
 wpa_supplicant = "/etc/wpa_supplicant/wpa_supplicant.conf"
 
+buzzer_pin = 23
+red_pin = 22
+green_pin = 17
+blue_pin = 27
+button_pin = 24
+
+app = Flask(__name__)
+api = Api(app)
+hardware = Hardware(
+    redpin = red_pin,
+    greenpin = green_pin,
+    bluepin = blue_pin,
+    buttonpin = button_pin,
+    buzzerpin = buzzer_pin
+)
+
+def connect(host="https://google.com"):
+    try:
+        urllib.request.urlopen(host)
+        return True
+    except:
+        return False
+
 def setWiFiCredentials(ssid, pwd):
+    # Disable access point and enable connection to a Wi-Fi network
     WPASupplicantConfig.setCredentials(
             "configurations/wpa_supplicant.conf", 
             wpa_supplicant, 
@@ -27,7 +50,18 @@ def setWiFiCredentials(ssid, pwd):
             dhcpcd
     )
     APServices.stop()
-    os._exit(0)
+    if connect(host="https://google.com"):
+        hardware.setColorRGB(False, True, False)
+        hardware.playBuzzer(1, 0.5, 0.5)
+        hardware.close()
+        os._exit(0)
+    else:
+        # Switch back to being an access point
+        APConfig.copyfile("configurations/dnsmasq.conf", dnsmasq)
+        APConfig.copyfile("configurations/dhcpcd.conf", dhcpcd)
+        APServices.start()
+        hardware.setColorRGB(True, False, False)
+        hardware.playBuzzer(5, 0.05, 0.05)
 
 class Index(Resource):
 
@@ -46,12 +80,15 @@ class Index(Resource):
         response = jsonify()
         data = request.get_json(force=True)
         if data is not None:
-            ssid = data["ssid"]
-            pwd = data["pwd"]
-            print("ssid:", ssid)
-            print("pwd:", pwd)
-            threading.Thread(target=setWiFiCredentials, args=(ssid, pwd)).start()
-            response.status_code = 200
+            try:
+                ssid = data["ssid"]
+                pwd = data["pwd"]
+                print("ssid:", ssid)
+                print("pwd:", pwd)
+                threading.Thread(target=setWiFiCredentials, args=(ssid, pwd)).start()
+                response.status_code = 200
+            except:
+                response.status_code = 400
         else:
             response.status_code = 400
         return response

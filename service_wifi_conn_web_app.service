@@ -3,9 +3,9 @@ Description=A local-based web application using flask to set up connection anoth
 After=multi-user.target
 
 [Service]
-WorkingDirectory=/home/user/Desktop/wifi-conn-web-app
+WorkingDirectory=/home/pi/Desktop/wifi-conn-web-app
 ExecStart=/usr/bin/python main.py
-User=user
+User=pi
 
 [Install]
 WantedBy=multi-user.target

@@ -1,4 +1,5 @@
 from hardware import Hardware
+import check_internet_conn
 from configconn import *
 import time, subprocess
 
@@ -7,9 +8,9 @@ dhcpcd = "/etc/dhcpcd.conf"
 wpa_supplicant = "/etc/wpa_supplicant/wpa_supplicant.conf"
 buzzer_pin = 23
 red_pin = 22
-green_pin = 16
+green_pin = 17
 blue_pin = 27
-button_pin = 26
+button_pin = 24
 
 hardware = Hardware(
     redpin = red_pin,
@@ -26,7 +27,7 @@ def switchToAP():
     APConfig.copyfile("configurations/dhcpcd.conf", dhcpcd)
     APServices.start()
 
-hardware.setColorRGB(False, True, False)
+# hardware.setColorRGB(False, True, False)
 hardware.buttonListen(target_time=3, callback_func=switchToAP)
 hardware.close()
 

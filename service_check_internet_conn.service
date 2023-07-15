@@ -1,0 +1,10 @@
+[Unit]
+Description=program that checks the status of internet connection
+
+[Service]
+WorkingDirectory=/home/pi/wifi-conn-web-app
+ExecStart=/usr/bin/python check_internet_conn.py
+User=pi
+
+[Install]
+WantedBy=multi-user.target

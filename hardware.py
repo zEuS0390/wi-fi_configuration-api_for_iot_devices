@@ -32,7 +32,8 @@ class Hardware:
     def __del__(self):
         # self.setColorRGB(False, False, False)
         # self.playBuzzerOnly(False)
-        GPIO.cleanup()
+        # GPIO.cleanup()
+        pass
 
     def setupPins(self):
         GPIO.setup(self.buzzerPin, GPIO.OUT)
